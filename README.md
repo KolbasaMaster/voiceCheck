@@ -11,6 +11,7 @@
 - [Возможности](#возможности)
 - [Требования](#требования)
 - [Архитектура](#архитектура)
+- [Используемые модели](#используемые-модели)
 - [Установка](#установка)
 - [Структура проекта](#структура-проекта)
 - [Описание функций и модулей](#описание-функций-и-модулей)
@@ -46,7 +47,7 @@
 
 - GPU с минимум 24 ГБ видеопамяти
 - Учётная запись Hugging Face и токен доступа
-- Модель `Llama-3.2-11B-Vision-Instruct` или выше
+- Модель `Llama-3.2-3B-Instruct` или выше
 
 ### OpenAI
 
@@ -74,6 +75,28 @@
 
 ---
 
+## Используемые модели
+
+### Языковые модели (LLM)
+
+- **Llama** — `meta-llama/Llama-3.2-3B-Instruct` через Hugging Face Transformers (локально).
+- **OpenAI** — `gpt-4o` через OpenAI API.
+- **Azure OpenAI** — `gpt-4o` через Azure deployment.
+
+Выбор модели задаётся в `config/config.yaml` и реализуется через `ModelFactory` (`src/text/model.py`).
+
+### Аудиомодели
+
+- **faster-whisper** — распознавание речи (Speech-to-Text), используется в `Transcriber`.
+- **NVIDIA NeMo MSDD** (`NeuralDiarizer`) — диаризация дикторов, конфиг `config/nemo/diar_infer_telephonic.yaml`.
+- **Demucs** — отделение голоса от фоновой музыки и шума (`DemucsVocalSeparator`).
+- **MP-SENet** (`JacobLinCool/MP-SENet-DNS`) — улучшение качества речи и шумоподавление (`SpeechEnhancement`).
+- **CTC Forced Aligner** — выравнивание слов с временными метками (`ForcedAligner`).
+- **deepmultilingualpunctuation** — восстановление пунктуации (`PunctuationRestorer`).
+- **pyannote.audio** — обработка дикторов и работа с RTTM (через зависимости NeMo).
+
+---
+
 ## Установка
 
 ### Linux / Ubuntu
@@ -86,10 +109,10 @@ sudo apt install -y ffmpeg build-essential g++
 ### Клонирование и окружение
 
 ```bash
-git clone <URL_ВАШЕГО_РЕПОЗИТОРИЯ> voiceCheck
+git clone git@github.com:KolbasaMaster/voiceCheck.git
 cd voiceCheck
 conda env create -f environment.yaml
-conda activate voiceCheck
+conda activate Callytics
 ```
 
 ### Файл `.env`
@@ -120,7 +143,7 @@ DB_URL=
 ### Инициализация базы данных
 
 ```bash
-sqlite3 .db/voiceCheck.sqlite < src/db/sql/Schema.sql
+sqlite3 .db/Callytics.sqlite < src/db/sql/Schema.sql
 ```
 
 ---
@@ -131,7 +154,7 @@ sqlite3 .db/voiceCheck.sqlite < src/db/sql/Schema.sql
 .
 ├── automation/
 │   └── service/
-│       └── voicecheck.service        # systemd-сервис для автозапуска
+│       └── callytics.service         # systemd-сервис для автозапуска
 ├── config/
 │   ├── config.yaml                   # основная конфигурация
 │   ├── nemo/
@@ -141,7 +164,7 @@ sqlite3 .db/voiceCheck.sqlite < src/db/sql/Schema.sql
 │   ├── example/                      # примеры аудио
 │   └── input/                        # отслеживаемая директория для входных файлов
 ├── .db/
-│   └── voiceCheck.sqlite             # SQLite база результатов
+│   └── Callytics.sqlite              # SQLite база результатов
 ├── src/
 │   ├── audio/                        # обработка аудио
 │   ├── text/                         # работа с LLM и текстом
@@ -277,7 +300,7 @@ SQL-схема и запросы лежат в `src/db/sql/`.
 Схема инициализируется командой:
 
 ```bash
-sqlite3 .db/voiceCheck.sqlite < src/db/sql/Schema.sql
+sqlite3 .db/Callytics.sqlite < src/db/sql/Schema.sql
 ```
 
 ---
@@ -297,9 +320,9 @@ python main.py
 ### Запуск через systemd
 
 ```bash
-sudo cp automation/service/voicecheck.service /etc/systemd/system/
+sudo cp automation/service/callytics.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable --now voicecheck
+sudo systemctl enable --now callytics
 ```
 
 ---
@@ -307,3 +330,7 @@ sudo systemctl enable --now voicecheck
 ## Лицензия
 
 Проект распространяется на условиях лицензии, указанной в файле `LICENSE`.
+
+## Благодарности
+
+Проект основан на open-source решении [Callytics](https://github.com/bunyaminergen/Callytics) от Bünyamin Ergen.

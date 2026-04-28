@@ -1,0 +1,8 @@
+# Directory
+.idea
+.temp
+.agile
+.data/input
+
+# Extension
+*.env
