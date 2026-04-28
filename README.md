@@ -79,11 +79,12 @@
 
 ### Языковые модели (LLM)
 
+- **GigaChat** — `GigaChat` (также доступны `GigaChat-Pro`, `GigaChat-Max`) через официальный SDK Сбера. **Используется по умолчанию.**
 - **Llama** — `meta-llama/Llama-3.2-3B-Instruct` через Hugging Face Transformers (локально).
 - **OpenAI** — `gpt-4o` через OpenAI API.
 - **Azure OpenAI** — `gpt-4o` через Azure deployment.
 
-Выбор модели задаётся в `config/config.yaml` и реализуется через `ModelFactory` (`src/text/model.py`).
+Выбор модели задаётся в `config/config.yaml` и реализуется через `ModelFactory` (`src/text/model.py`). Активная модель в конвейере определяется параметром `model_id` в `main.py` (по умолчанию `"gigachat"`).
 
 ### Аудиомодели
 
@@ -120,6 +121,9 @@ conda activate Callytics
 Пример содержимого:
 
 ```env
+# GigaChat (Сбер)
+GIGACHAT_CREDENTIALS=
+
 # OpenAI
 OPENAI_API_KEY=
 
@@ -242,6 +246,7 @@ sqlite3 .db/Callytics.sqlite < src/db/sql/Schema.sql
 - **`LLaMAModel`** — реализация Llama (через Hugging Face).
 - **`OpenAIModel`** — клиент OpenAI API.
 - **`AzureOpenAIModel`** — клиент Azure OpenAI.
+- **`GigaChatModel`** — клиент GigaChat (Сбер). Авторизация через `GIGACHAT_CREDENTIALS`, scope по умолчанию `GIGACHAT_API_PERS`.
 - **`ModelRegistry`** — реестр доступных моделей.
 - **`ModelFactory`** — фабрика для создания нужного экземпляра модели.
 - **`LanguageModelManager`** — высокоуровневый менеджер, управляющий жизненным циклом модели.

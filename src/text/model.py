@@ -319,6 +319,97 @@ class AzureOpenAIModel(LanguageModel):
         print(f"Azure OpenAI model '{self.model_name}' unloaded.")
 
 
+class GigaChatModel(LanguageModel):
+    """
+    GigaChat (Sber) language model integration.
+
+    Parameters
+    ----------
+    config : dict
+        Configuration for the GigaChat model.
+    """
+
+    def __init__(self, config: Annotated[dict, "Configuration for the GigaChat model"]):
+        super().__init__(config)
+        try:
+            from gigachat import GigaChat
+        except ImportError as e:
+            raise ImportError(
+                "GigaChat SDK is not installed. Run: pip install gigachat"
+            ) from e
+
+        credentials = config.get('credentials')
+        if not credentials:
+            raise ValueError("GigaChat credentials must be provided (env var GIGACHAT_CREDENTIALS).")
+
+        self.model_name = config.get('model_name', 'GigaChat')
+        self.client = GigaChat(
+            credentials=credentials,
+            scope=config.get('scope', 'GIGACHAT_API_PERS'),
+            model=self.model_name,
+            verify_ssl_certs=config.get('verify_ssl_certs', False),
+        )
+
+    def generate(
+            self,
+            messages: Annotated[list, "List of message dictionaries"],
+            max_length: Annotated[int, "Maximum number of tokens for the output"] = 10000,
+            return_as_json: bool = False,
+            **kwargs: Annotated[Any, "Additional keyword arguments"]
+    ) -> Annotated[str, "Generated text"]:
+        """
+        Generate text using GigaChat API.
+
+        Parameters
+        ----------
+        messages : list
+            List of message dictionaries with 'role' and 'content'.
+        max_length : int, optional
+            Maximum number of tokens for the output. Default is 10000.
+        return_as_json : bool, optional
+            If True, parse the response as JSON.
+        **kwargs : Any
+            Additional keyword arguments (e.g. temperature).
+
+        Returns
+        -------
+        str or dict
+            Generated text, or parsed dict if return_as_json=True and the
+            response is valid JSON.
+        """
+        from gigachat.models import Chat, Messages
+
+        chat_messages = [
+            Messages(role=m.get('role', 'user'), content=m.get('content', ''))
+            for m in messages
+        ]
+        payload = Chat(
+            messages=chat_messages,
+            max_tokens=max_length,
+            temperature=kwargs.get('temperature', 0.7),
+        )
+        response = self.client.chat(payload)
+        response_text = response.choices[0].message.content
+
+        if return_as_json:
+            try:
+                return json.loads(response_text)
+            except json.JSONDecodeError:
+                return response_text
+
+        return response_text
+
+    def unload(self) -> Annotated[None, "Close the GigaChat client session"]:
+        """
+        Close the underlying HTTP session held by the GigaChat client.
+        """
+        try:
+            self.client.close()
+        except Exception:
+            pass
+        print(f"GigaChat model '{self.model_name}' unloaded.")
+
+
 class ModelRegistry:
     """
     Registry to manage language model class registrations.

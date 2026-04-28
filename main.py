@@ -63,7 +63,7 @@ async def main(audio_file_path: str):
     processor = AudioProcessor(audio_path=audio_file_path, temp_dir=temp_dir)
     transcriber = Transcriber(device=device, compute_type=compute_type)
     aligner = ForcedAligner(device=device)
-    llm_handler = LLMOrchestrator(config_path=config_path, prompt_config_path=prompt_path, model_id="openai")
+    llm_handler = LLMOrchestrator(config_path=config_path, prompt_config_path=prompt_path, model_id="gigachat")
     llm_result_handler = LLMResultHandler()
     cleaner = Cleaner()
     formatter = Formatter()
