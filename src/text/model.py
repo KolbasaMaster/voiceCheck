@@ -8,11 +8,21 @@ from typing import Optional, Any, Annotated
 
 # Related third-party imports
 import yaml
-import torch
-import openai
-from openai import OpenAI
+try:
+    import torch
+except ImportError:
+    torch = None
+try:
+    import openai
+    from openai import OpenAI
+except ImportError:
+    openai = None
+    OpenAI = None
 from dotenv import load_dotenv
-from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM
+try:
+    from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM
+except ImportError:
+    pipeline = AutoTokenizer = AutoModelForCausalLM = None
 
 load_dotenv()
 
@@ -568,7 +578,8 @@ class LanguageModelManager:
             If the model ID is not found in the configuration.
         """
         async with self.lock:
-            torch.cuda.empty_cache()
+            if torch is not None and torch.cuda.is_available():
+                torch.cuda.empty_cache()
             if model_id in self.models:
                 self.models.move_to_end(model_id)
                 return self.models[model_id]

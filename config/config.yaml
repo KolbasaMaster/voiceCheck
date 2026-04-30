@@ -25,7 +25,13 @@ models:
   gigachat:
     model_name: "GigaChat"                            # Options: "GigaChat", "GigaChat-Pro", "GigaChat-Max"
     credentials: "${GIGACHAT_CREDENTIALS}"            # Base64 Authorization key from Sber
-    scope: "GIGACHAT_API_PERS"                        # Options: "GIGACHAT_API_PERS", "GIGACHAT_API_B2B", "GIGACHAT_API_CORP"
+    scope: "GIGACHAT_API_CORP"                        # Options: "GIGACHAT_API_PERS", "GIGACHAT_API_B2B", "GIGACHAT_API_CORP"
+    verify_ssl_certs: false
+
+  gigachat_max:
+    model_name: "GigaChat-Max"                        # старшая модель — для всех агентов voiceCheck-бота
+    credentials: "${GIGACHAT_CREDENTIALS}"
+    scope: "GIGACHAT_API_CORP"
     verify_ssl_certs: false
 
   mpsenet:

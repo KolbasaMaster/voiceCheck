@@ -2,7 +2,29 @@
 .idea
 .temp
 .agile
-.data/input
+.data/
 
-# Extension
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Environment / secrets
 *.env
+.env
+.env.*
+
+# Photos / scans (могут содержать ключи и личные данные)
+*.png
+*.jpg
+*.jpeg
+
+# Реальные клиентские данные / тестовые корпуса
+*.xlsx
+
+# Локальные базы и логи
+*.sqlite
+*.sqlite3
+*.log
